@@ -2,7 +2,7 @@
 #include "base58.h"
 #include "ccan/ccan/crypto/sha256/sha256.h"
 #include "ccan/ccan/endian/endian.h"
-#include <include/wally_crypto.h>
+#include "wally_crypto.h"
 
 /* Temporary stack buffer sizes */
 #define BIGNUM_WORDS 128u
@@ -96,7 +96,7 @@ static int base58_decode(const char *base58, size_t base58_len,
 
     /* Allocate our bignum buffer if it won't fit on the stack */
     if (bn_words > BIGNUM_WORDS)
-        if (!(bn = wally_malloc(bn_words * sizeof(*bn)))) {
+        if (!(bn = (uint32_t*)wally_malloc(bn_words * sizeof(*bn)))) {
             ret = WALLY_ENOMEM;
             goto cleanup;
         }
@@ -151,7 +151,7 @@ cleanup:
 
 uint32_t base58_get_checksum(const unsigned char *bytes, size_t bytes_len)
 {
-    struct sha256 sha;
+    struct sha256Wally sha;
     uint32_t checksum;
 
     wally_sha256d(bytes, bytes_len, (unsigned char *)&sha, sizeof(sha));
@@ -189,7 +189,7 @@ int wally_base58_from_bytes(const unsigned char *bytes, size_t bytes_len,
         ; /* no-op*/
 
     if (zeros == bytes_len) {
-        if (!(*output = wally_malloc(zeros + 1))) {
+        if (!(*output = (char*)wally_malloc(zeros + 1))) {
             ret = WALLY_ENOMEM;
             goto cleanup;
         }
@@ -203,7 +203,7 @@ int wally_base58_from_bytes(const unsigned char *bytes, size_t bytes_len,
 
     /* Allocate our bignum buffer if it won't fit on the stack */
     if (bn_bytes > BIGNUM_BYTES)
-        if (!(bn = wally_malloc(bn_bytes))) {
+        if (!(bn = (unsigned char*)wally_malloc(bn_bytes))) {
             ret = WALLY_ENOMEM;
             goto cleanup;
         }
@@ -228,7 +228,7 @@ int wally_base58_from_bytes(const unsigned char *bytes, size_t bytes_len,
     /* Copy the result */
     bn_bytes = bn + bn_bytes - top_byte;
 
-    if (!(*output = wally_malloc(zeros + bn_bytes + 1))) {
+    if (!(*output = (char*)wally_malloc(zeros + bn_bytes + 1))) {
         ret = WALLY_ENOMEM;
         goto cleanup;
     }

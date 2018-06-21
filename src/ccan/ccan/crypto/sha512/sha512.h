@@ -19,7 +19,7 @@
  *
  * Other fields may be added to the union in future.
  */
-struct sha512 {
+struct sha512Wally {
 	union {
 		uint64_t u64[8];
 		unsigned char u8[64];
@@ -35,7 +35,7 @@ struct sha512 {
  * The bytes pointed to by @p is SHA512 hashed into @sha512.  This is
  * equivalent to sha512_init(), sha512_update() then sha512_done().
  */
-void sha512(struct sha512 *sha, const void *p, size_t size);
+void sha512Wally(struct sha512Wally *sha, const void *p, size_t size);
 
 /**
  * struct sha512_ctx - structure to store running context for sha512
@@ -130,6 +130,6 @@ void sha512_update(struct sha512_ctx *ctx, const void *p, size_t size);
  * Note that @ctx is *destroyed* by this, and must be reinitialized.
  * To avoid that, pass a copy instead.
  */
-void sha512_done(struct sha512_ctx *sha512, struct sha512 *res);
+void sha512_done(struct sha512_ctx *sha512, struct sha512Wally *res);
 
 #endif /* CCAN_CRYPTO_SHA512_H */

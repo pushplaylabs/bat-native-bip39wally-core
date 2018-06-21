@@ -1,9 +1,9 @@
 #include "internal.h"
-#include <include/wally_elements.h>
-#include <include/wally_crypto.h>
+#include "wally_elements.h"
+#include "wally_crypto.h"
 #include "secp256k1/include/secp256k1_generator.h"
 #include "secp256k1/include/secp256k1_rangeproof.h"
-#include "src/secp256k1/include/secp256k1_surjectionproof.h"
+#include "secp256k1/include/secp256k1_surjectionproof.h"
 #include "secp256k1/include/secp256k1_ecdh.h"
 #include "ccan/ccan/crypto/sha256/sha256.h"
 #include <stdbool.h>
@@ -67,8 +67,8 @@ int wally_asset_final_vbf(const uint64_t *values, size_t values_len, size_t num_
         !bytes_out || len != ASSET_TAG_LEN)
         return WALLY_EINVAL;
 
-    abf_p = wally_malloc(values_len * sizeof(unsigned char *));
-    vbf_p = wally_malloc(values_len * sizeof(unsigned char *));
+    abf_p = (const unsigned char **)wally_malloc(values_len * sizeof(unsigned char *));
+    vbf_p = (const unsigned char **)wally_malloc(values_len * sizeof(unsigned char *));
 
     if (!abf_p || !vbf_p) {
         ret = WALLY_ENOMEM;
@@ -134,7 +134,7 @@ int wally_asset_rangeproof(uint64_t value,
     secp256k1_pubkey pub;
     secp256k1_pedersen_commitment commit;
     unsigned char nonce[32], message[ASSET_TAG_LEN * 2];
-    struct sha256 nonce_sha;
+    struct sha256Wally nonce_sha;
     int ret = WALLY_EINVAL;
 
     if (written)
@@ -208,7 +208,7 @@ int wally_asset_unblind(const unsigned char *pub_key, size_t pub_key_len,
     secp256k1_pubkey pub;
     secp256k1_pedersen_commitment commit;
     unsigned char nonce[32], message[ASSET_TAG_LEN * 2];
-    struct sha256 nonce_sha;
+    struct sha256Wally nonce_sha;
     size_t message_len = sizeof(message);
     uint64_t min_value, max_value;
     int ret = WALLY_EINVAL;
@@ -308,7 +308,7 @@ int wally_asset_surjectionproof(const unsigned char *output_asset, size_t output
      * currently differ from serialised, if this function took a pointer
      * to an array, all this is actually just a very convoluted cast.
      */
-    if (!(generators = wally_malloc(num_inputs * ASSET_GENERATOR_LEN))) {
+    if (!(generators = (secp256k1_generator *)wally_malloc(num_inputs * ASSET_GENERATOR_LEN))) {
         ret = WALLY_ENOMEM;
         goto cleanup;
     }

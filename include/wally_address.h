@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 
 /**
@@ -42,8 +42,8 @@ WALLY_CORE_API int wally_addr_segwit_to_bytes(
     size_t len,
     size_t *written);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* LIBWALLY_CORE_ADDRESS_H */

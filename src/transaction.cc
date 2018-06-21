@@ -3,8 +3,8 @@
 #include "ccan/ccan/endian/endian.h"
 #include "ccan/ccan/build_assert/build_assert.h"
 
-#include <include/wally_crypto.h>
-#include <include/wally_transaction.h>
+#include "wally_crypto.h"
+#include "wally_transaction.h"
 
 #include <limits.h>
 #include <stdbool.h>
@@ -15,7 +15,7 @@
  * we overestimate the size by a byte or two per tx sig. This allows using
  * e.g. the minimum fee rate/bump rate without core rejecting it for low fees.
  */
-static const unsigned char DUMMY_SIG[EC_SIGNATURE_DER_MAX_LEN + 1]; /* +1 for sighash */
+static unsigned char DUMMY_SIG[EC_SIGNATURE_DER_MAX_LEN + 1]; /* +1 for sighash */
 
 /* Mask for the actual sighash bits */
 #define SIGHASH_MASK 0x1f
@@ -25,7 +25,7 @@ static const unsigned char DUMMY_SIG[EC_SIGNATURE_DER_MAX_LEN + 1]; /* +1 for si
 
 #define TX_CHECK_OUTPUT if (!output) return WALLY_EINVAL; else *output = NULL
 #define TX_OUTPUT_ALLOC(typ) \
-    *output = wally_malloc(sizeof(typ)); \
+    *output = (typ*)wally_malloc(sizeof(typ)); \
     if (!*output) return WALLY_ENOMEM; \
     wally_clear((void *)*output, sizeof(typ)); \
     result = (typ *) *output;
@@ -50,10 +50,10 @@ static const unsigned char EMPTY_OUTPUT[9] = {
 
 /* LCOV_EXCL_START */
 /* Check assumptions we expect to hold true */
-static void assert_tx_assumptions(void)
+/*static void assert_tx_assumptions(void)
 {
     BUILD_ASSERT(WALLY_TXHASH_LEN == SHA256_LEN);
-}
+}*/
 /* LCOV_EXCL_END */
 
 static bool is_valid_witness_stack(const struct wally_tx_witness_stack *stack)
@@ -97,7 +97,7 @@ static void clear_and_free(void *p, size_t len)
 
 static void *realloc_array(const void *src, size_t old_n, size_t new_n, size_t size)
 {
-    unsigned char *p = wally_malloc(new_n * size);
+    unsigned char *p = (unsigned char *)wally_malloc(new_n * size);
     if (!p)
         return NULL;
     if (src)
@@ -112,7 +112,7 @@ static int replace_script(const unsigned char *script, size_t script_len,
     /* TODO: Avoid reallocation if new script is smaller than the existing one */
     unsigned char *new_script = NULL;
     if (script) {
-        if ((new_script = wally_malloc(script_len)) == NULL)
+        if ((new_script = (unsigned char *)wally_malloc(script_len)) == NULL)
             return WALLY_ENOMEM;
         memcpy(new_script, script, script_len);
     }
@@ -155,7 +155,7 @@ int wally_tx_witness_stack_init_alloc(size_t allocation_len,
     TX_OUTPUT_ALLOC(struct wally_tx_witness_stack);
 
     if (allocation_len) {
-        result->items = wally_malloc(allocation_len * sizeof(*result->items));
+        result->items = (struct wally_tx_witness_item *)wally_malloc(allocation_len * sizeof(*result->items));
         if (!result->items) {
             wally_free(result);
             *output = NULL;
@@ -222,7 +222,7 @@ int wally_tx_witness_stack_set(struct wally_tx_witness_stack *stack, size_t inde
         return WALLY_EINVAL;
 
     if (witness_len) {
-        new_witness = wally_malloc(witness_len);
+        new_witness = (unsigned char*)wally_malloc(witness_len);
         if (!new_witness)
             return WALLY_ENOMEM;
     }
@@ -231,7 +231,7 @@ int wally_tx_witness_stack_set(struct wally_tx_witness_stack *stack, size_t inde
         if (index >= stack->items_allocation_len) {
             /* Expand the witness array */
             struct wally_tx_witness_item *p;
-            p = realloc_array(stack->items, stack->items_allocation_len,
+            p = (struct wally_tx_witness_item *)realloc_array(stack->items, stack->items_allocation_len,
                               index + 1, sizeof(*stack->items));
             if (!p) {
                 wally_free(new_witness);
@@ -269,7 +269,7 @@ static bool clone_input_to(
     struct wally_tx_input *dst,
     const struct wally_tx_input *src)
 {
-    unsigned char *new_script = wally_malloc(src->script_len);
+    unsigned char *new_script = (unsigned char *)wally_malloc(src->script_len);
     struct wally_tx_witness_stack *new_witness;
     new_witness = new_script && src->witness ? clone_witness(src->witness) : NULL;
 
@@ -297,7 +297,7 @@ int wally_tx_input_init(const unsigned char *txhash, size_t txhash_len,
 
     if (!script)
         output->script = NULL;
-    else if (!(output->script = wally_malloc(script_len)))
+    else if (!(output->script = (unsigned char *)wally_malloc(script_len)))
         return WALLY_ENOMEM;
 
     output->witness = NULL;
@@ -358,7 +358,7 @@ int wally_tx_input_free(struct wally_tx_input *input)
 static bool clone_output_to(struct wally_tx_output *dst,
                             const struct wally_tx_output *src)
 {
-    unsigned char *new_script = wally_malloc(src->script_len);
+    unsigned char *new_script = (unsigned char *)wally_malloc(src->script_len);
     if (!new_script)
         return false;
 
@@ -378,7 +378,7 @@ int wally_tx_output_init(uint64_t satoshi,
 
     if (!script)
         output->script = NULL;
-    else if (!(output->script = wally_malloc(script_len)))
+    else if (!(output->script = (unsigned char *)wally_malloc(script_len)))
         return WALLY_ENOMEM;
 
     if (output->script)
@@ -436,9 +436,9 @@ int wally_tx_init_alloc(uint32_t version, uint32_t locktime,
     TX_OUTPUT_ALLOC(struct wally_tx);
 
     if (inputs_allocation_len)
-        new_inputs = wally_malloc(inputs_allocation_len * sizeof(struct wally_tx_input));
+        new_inputs = (struct wally_tx_input *)wally_malloc(inputs_allocation_len * sizeof(struct wally_tx_input));
     if (outputs_allocation_len)
-        new_outputs = wally_malloc(outputs_allocation_len * sizeof(struct wally_tx_output));
+        new_outputs = (struct wally_tx_output *)wally_malloc(outputs_allocation_len * sizeof(struct wally_tx_output));
     if ((inputs_allocation_len && !new_inputs) ||
         (outputs_allocation_len && !new_outputs)) {
         wally_free(new_inputs);
@@ -489,7 +489,7 @@ int wally_tx_add_input(struct wally_tx *tx, const struct wally_tx_input *input)
     if (tx->num_inputs >= tx->inputs_allocation_len) {
         /* Expand the inputs array */
         struct wally_tx_input *p;
-        p = realloc_array(tx->inputs, tx->inputs_allocation_len,
+        p = (struct wally_tx_input *)realloc_array(tx->inputs, tx->inputs_allocation_len,
                           tx->num_inputs + 1, sizeof(*tx->inputs));
         if (!p)
             return WALLY_ENOMEM;
@@ -561,7 +561,7 @@ int wally_tx_add_output(struct wally_tx *tx, const struct wally_tx_output *outpu
     if (tx->num_outputs >= tx->outputs_allocation_len) {
         /* Expand the outputs array */
         struct wally_tx_output *p;
-        p = realloc_array(tx->outputs, tx->outputs_allocation_len,
+        p = (struct wally_tx_output *)realloc_array(tx->outputs, tx->outputs_allocation_len,
                           tx->num_outputs + 1, sizeof(*tx->outputs));
         if (!p)
             return WALLY_ENOMEM;
@@ -829,7 +829,7 @@ static inline int tx_to_bip143_bytes(const struct wally_tx *tx,
 
     if (inputs_size > buff_len || outputs_size > buff_len) {
         buff_len = inputs_size > outputs_size ? inputs_size : outputs_size;
-        buff_p = wally_malloc(buff_len);
+        buff_p = (unsigned char*)wally_malloc(buff_len);
         if (buff_p == NULL)
             return WALLY_ENOMEM;
     }
@@ -1031,7 +1031,7 @@ int wally_tx_to_hex(const struct wally_tx *tx, uint32_t flags,
     ret = wally_tx_to_bytes(tx, flags, buff_p, sizeof(buff), &n);
     if (ret == WALLY_OK) {
         if (n > sizeof(buff)) {
-            if ((buff_p = wally_malloc(n)) == NULL)
+            if ((buff_p = (unsigned char*)wally_malloc(n)) == NULL)
                 return WALLY_ENOMEM;
             ret = wally_tx_to_bytes(tx, flags, buff_p, n, &written);
             if (n != written)
@@ -1239,7 +1239,7 @@ int wally_tx_from_hex(const char *hex, uint32_t flags,
     bin_len = hex_len / 2;
 
     if (bin_len > sizeof(buff)) {
-        if ((buff_p = wally_malloc(bin_len)) == NULL)
+        if ((buff_p = (unsigned char*)wally_malloc(bin_len)) == NULL)
             return WALLY_ENOMEM;
     }
     ret = wally_hex_to_bytes(hex, buff_p, bin_len, &written);
@@ -1291,7 +1291,7 @@ int wally_tx_get_signature_hash(const struct wally_tx *tx,
     if ((ret = tx_get_length(tx, &opts, 0, &n)) != WALLY_OK)
         goto fail;
 
-    if (n > sizeof(buff) && (buff_p = wally_malloc(n)) == NULL) {
+    if (n > sizeof(buff) && (buff_p = (unsigned char*)wally_malloc(n)) == NULL) {
         ret = WALLY_ENOMEM;
         goto fail;
     }

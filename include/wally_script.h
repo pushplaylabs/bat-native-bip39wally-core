@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /* Script types */
 #define WALLY_SCRIPT_TYPE_UNKNOWN   0x0
@@ -349,9 +349,8 @@ WALLY_CORE_API int wally_witness_program_from_bytes(
     size_t len,
     size_t *written);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* LIBWALLY_CORE_SCRIPT_H */
-

@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /** The required lengths of entropy for `bip32_key_from_seed` */
 #define BIP32_ENTROPY_LEN_128 16
@@ -225,8 +225,8 @@ WALLY_CORE_API int bip32_key_from_parent_path_alloc(
     uint32_t flags,
     struct ext_key **output);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* LIBWALLY_CORE_BIP32_H */

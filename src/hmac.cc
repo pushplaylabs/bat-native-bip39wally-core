@@ -1,14 +1,14 @@
 #include "internal.h"
 #include "hmac.h"
-#include <ccan/ccan/crypto/sha256/sha256.h>
-#include <ccan/ccan/crypto/sha512/sha512.h>
-#include <include/wally_crypto.h>
+#include "ccan/ccan/crypto/sha256/sha256.h"
+#include "ccan/ccan/crypto/sha512/sha512.h"
+#include "wally_crypto.h"
 #include <stdbool.h>
 
 #ifdef SHA_T
 #undef SHA_T
 #endif
-#define SHA_T sha256
+#define SHA_T sha256Wally
 #define SHA_CTX_MEMBER u32
 #define SHA_PRE(name) sha256 ## name
 #define HMAC_FUNCTION hmac_sha256_impl
@@ -16,7 +16,7 @@
 #include "hmac.inl"
 
 #undef SHA_T
-#define SHA_T sha512
+#define SHA_T sha512Wally
 #undef SHA_CTX_MEMBER
 #define SHA_CTX_MEMBER u64
 #undef SHA_PRE

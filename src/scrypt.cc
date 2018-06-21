@@ -1,6 +1,6 @@
 #include "internal.h"
-#include <include/wally_bip38.h>
-#include <include/wally_crypto.h>
+#include "wally_bip38.h"
+#include "wally_crypto.h"
 #include "hmac.h"
 #include "ccan/ccan/endian/endian.h"
 

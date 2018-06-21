@@ -1,5 +1,5 @@
 /* CC0 license (public domain) - see LICENSE file for details */
-#include <ccan/str/hex/hex.h>
+#include "hex.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@ static bool char_to_hex(unsigned char *val, char c)
 bool hex_decode(const char *str, size_t slen, void *buf, size_t bufsize)
 {
 	unsigned char v1, v2;
-	unsigned char *p = buf;
+	unsigned char *p = (unsigned char *)buf;
 
 	while (slen > 1) {
 		if (!char_to_hex(&v1, str[0]) || !char_to_hex(&v2, str[1]))

@@ -1,5 +1,5 @@
 #include "internal.h"
-#include <include/wally_crypto.h>
+#include "wally_crypto.h"
 #if 0
 #include "secp256k1/include/secp256k1_schnorr.h"
 #endif
@@ -15,10 +15,10 @@ static const char MSG_PREFIX[] = "\x18" "Bitcoin Signed Message:\n";
 
 /* LCOV_EXCL_START */
 /* Check assumptions we expect to hold true */
-static void assert_sign_assumptions(void)
+/*static void assert_sign_assumptions(void)
 {
     BUILD_ASSERT(sizeof(secp256k1_ecdsa_signature) == EC_SIGNATURE_LEN);
-}
+}*/
 /* LCOV_EXCL_STOP */
 
 static bool is_valid_ec_type(uint32_t flags)
@@ -270,7 +270,7 @@ int wally_format_bitcoin_message(const unsigned char *bytes, size_t bytes_len,
         /* Ensure we have a suitable temporary buffer to serialise into */
         msg_buf = buf;
         if (msg_len > sizeof(buf)) {
-            msg_buf = wally_malloc(msg_len);
+            msg_buf = (unsigned char *)wally_malloc(msg_len);
             if (!msg_buf) {
                 *written = 0;
                 return WALLY_ENOMEM;

@@ -1,8 +1,8 @@
 #ifndef LIBWALLY_HMAC_H
 #define LIBWALLY_HMAC_H
 
-struct sha256;
-struct sha512;
+struct sha256Wally;
+struct sha512Wally;
 
 /**
  * hmac_sha256 - Compute an HMAC using SHA-256
@@ -13,7 +13,7 @@ struct sha512;
  * @msg: The message to hash
  * @msg_len: The length of @msg in bytes.
  */
-void hmac_sha256_impl(struct sha256 *sha,
+void hmac_sha256_impl(struct sha256Wally *sha,
                       const unsigned char *key, size_t key_len,
                       const unsigned char *msg, size_t msg_len);
 
@@ -26,7 +26,7 @@ void hmac_sha256_impl(struct sha256 *sha,
  * @msg: The message to hash
  * @msg_len: The length of @msg in bytes.
  */
-void hmac_sha512_impl(struct sha512 *sha,
+void hmac_sha512_impl(struct sha512Wally *sha,
                       const unsigned char *key, size_t key_len,
                       const unsigned char *msg, size_t msg_len);
 

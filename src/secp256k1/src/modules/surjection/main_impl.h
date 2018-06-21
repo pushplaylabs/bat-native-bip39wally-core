@@ -12,8 +12,8 @@
 #include "modules/rangeproof/borromean.h"
 #include "modules/surjection/surjection_impl.h"
 #include "hash.h"
-#include "include/secp256k1_rangeproof.h"
-#include "include/secp256k1_surjectionproof.h"
+#include "secp256k1_rangeproof.h"
+#include "secp256k1_surjectionproof.h"
 
 static size_t secp256k1_count_bits_set(const unsigned char* data, size_t count) {
     size_t ret = 0;

@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #ifndef WALLY_CORE_API
 # if defined(_WIN32)
@@ -238,8 +238,8 @@ WALLY_CORE_API int wally_set_operations(
 
 #endif /* SWIG */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* WALLY_CORE_H */

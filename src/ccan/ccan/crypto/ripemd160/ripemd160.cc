@@ -6,9 +6,9 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  */
-#include <ccan/crypto/ripemd160/ripemd160.h>
-#include <ccan/endian/endian.h>
-#include <ccan/compiler/compiler.h>
+#include "ripemd160.h"
+#include "../../endian/endian.h"
+#include "../../compiler/compiler.h"
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
@@ -56,14 +56,14 @@ inline static uint32_t f4(uint32_t x, uint32_t y, uint32_t z) { return (x & z) |
 inline static uint32_t f5(uint32_t x, uint32_t y, uint32_t z) { return x ^ (y | ~z); }
 
 /** Initialize RIPEMD-160 state. */
-inline static void Initialize(uint32_t* s)
+/*inline static void Initialize(uint32_t* s)
 {
     s[0] = 0x67452301ul;
     s[1] = 0xEFCDAB89ul;
     s[2] = 0x98BADCFEul;
     s[3] = 0x10325476ul;
     s[4] = 0xC3D2E1F0ul;
-}
+}*/
 
 inline static uint32_t rol(uint32_t x, int i) { return (x << i) | (x >> (32 - i)); }
 
@@ -271,7 +271,7 @@ static void Transform(uint32_t *s, const uint32_t *chunk)
 
 static void add(struct ripemd160_ctx *ctx, const void *p, size_t len)
 {
-	const unsigned char *data = p;
+	const unsigned char *data = (const unsigned char *)p;
 	size_t bufsize = ctx->bytes % 64;
 
 	if (bufsize + len >= 64) {
@@ -296,7 +296,7 @@ static void add(struct ripemd160_ctx *ctx, const void *p, size_t len)
 		data += 64;
 		len -= 64;
 	}
-	    
+
 	if (len) {
 		/* Fill the buffer with what remains. */
 		memcpy(ctx->buf.u8 + bufsize, data, len);
@@ -342,7 +342,7 @@ void ripemd160(struct ripemd160 *ripemd, const void *p, size_t size)
 	ripemd160_done(&ctx, ripemd);
 	CCAN_CLEAR_MEMORY(&ctx, sizeof(ctx));
 }
-	
+
 void ripemd160_u8(struct ripemd160_ctx *ctx, uint8_t v)
 {
 	ripemd160_update(ctx, &v, sizeof(v));
@@ -369,13 +369,13 @@ void ripemd160_le16(struct ripemd160_ctx *ctx, uint16_t v)
 	leint16_t lev = cpu_to_le16(v);
 	ripemd160_update(ctx, &lev, sizeof(lev));
 }
-	
+
 void ripemd160_le32(struct ripemd160_ctx *ctx, uint32_t v)
 {
 	leint32_t lev = cpu_to_le32(v);
 	ripemd160_update(ctx, &lev, sizeof(lev));
 }
-	
+
 void ripemd160_le64(struct ripemd160_ctx *ctx, uint64_t v)
 {
 	leint64_t lev = cpu_to_le64(v);
@@ -388,13 +388,13 @@ void ripemd160_be16(struct ripemd160_ctx *ctx, uint16_t v)
 	beint16_t bev = cpu_to_be16(v);
 	ripemd160_update(ctx, &bev, sizeof(bev));
 }
-	
+
 void ripemd160_be32(struct ripemd160_ctx *ctx, uint32_t v)
 {
 	beint32_t bev = cpu_to_be32(v);
 	ripemd160_update(ctx, &bev, sizeof(bev));
 }
-	
+
 void ripemd160_be64(struct ripemd160_ctx *ctx, uint64_t v)
 {
 	beint64_t bev = cpu_to_be64(v);
