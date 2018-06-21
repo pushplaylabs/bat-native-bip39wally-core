@@ -3,9 +3,9 @@
 
 # include "secp256k1.h"
 
-# ifdef __cplusplus
-extern "C" {
-# endif
+//# ifdef __cplusplus
+//extern "C" {
+//# endif
 
 #include <stdint.h>
 
@@ -89,8 +89,8 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_generator_generate_blin
     const unsigned char *blind32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
 
-# ifdef __cplusplus
-}
-# endif
+//# ifdef __cplusplus
+//}
+//# endif
 
 #endif
