@@ -6,7 +6,17 @@ if (is_android) {
   import("//build/config/android/rules.gni")
 }
 
-static_library("bip39wally-core") {
+config("external_config") {
+  defines = [ "USE_NUM_NONE", "USE_FIELD_10X26", "USE_FIELD_INV_BUILTIN", "USE_SCALAR_8X32", "USE_SCALAR_INV_BUILTIN", "ENABLE_MODULE_GENERATOR", "ENABLE_MODULE_RANGEPROOF", "ENABLE_MODULE_ECDH", "ENABLE_MODULE_SURJECTIONPROOF" ]
+  include_dirs = [
+    "include",
+    "src/secp256k1/include",
+    "src/secp256k1/src",
+  ]
+}
+
+source_set("bip39wally-core") {
+  public_configs = [ ":external_config" ]
   sources = [
     "src/aes.cc",
     "src/base58.cc",
@@ -37,13 +47,4 @@ static_library("bip39wally-core") {
   #} else {
   #  sources += [ "relic/src/arch/relic_arch_arm.c" ]
   #}
-
-
-  include_dirs = [
-    "include",
-    "src/secp256k1/include",
-    "src/secp256k1/src",
-  ]
-
-  defines = [ "USE_NUM_NONE", "USE_FIELD_10X26", "USE_FIELD_INV_BUILTIN", "USE_SCALAR_8X32", "USE_SCALAR_INV_BUILTIN", "ENABLE_MODULE_GENERATOR", "ENABLE_MODULE_RANGEPROOF", "ENABLE_MODULE_ECDH", "ENABLE_MODULE_SURJECTIONPROOF" ]
 }
