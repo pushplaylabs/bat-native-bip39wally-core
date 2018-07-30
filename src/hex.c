@@ -10,7 +10,7 @@ int wally_hex_from_bytes(const unsigned char *bytes, size_t bytes_len,
     if (!bytes || !output)
         return WALLY_EINVAL;
 
-    *output = (char*)wally_malloc(hex_str_size(bytes_len));
+    *output = wally_malloc(hex_str_size(bytes_len));
     if (!*output)
         return WALLY_ENOMEM;
 

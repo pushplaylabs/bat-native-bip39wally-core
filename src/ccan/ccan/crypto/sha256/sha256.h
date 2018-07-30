@@ -19,7 +19,7 @@
  *
  * Other fields may be added to the union in future.
  */
-struct sha256Wally {
+struct sha256 {
 	union {
 		uint32_t u32[8];
 		unsigned char u8[32];
@@ -40,7 +40,7 @@ void sha256_optimize(void);
  * The bytes pointed to by @p is SHA256 hashed into @sha256.  This is
  * equivalent to sha256_init(), sha256_update() then sha256_done().
  */
-void sha256Wally(struct sha256Wally *sha, const void *p, size_t size);
+void sha256(struct sha256 *sha, const void *p, size_t size);
 
 /**
  * struct sha256_ctx - structure to store running context for sha256
@@ -132,7 +132,7 @@ void sha256_update(struct sha256_ctx *ctx, const void *p, size_t size);
  * Note that @ctx is *destroyed* by this, and must be reinitialized.
  * To avoid that, pass a copy instead.
  */
-void sha256_done(struct sha256_ctx *sha256, struct sha256Wally *res);
+void sha256_done(struct sha256_ctx *sha256, struct sha256 *res);
 
 /* Add various types to an SHA256 hash */
 void sha256_u8(struct sha256_ctx *ctx, uint8_t v);

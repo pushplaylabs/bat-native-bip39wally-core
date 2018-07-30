@@ -6,9 +6,9 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  */
-#include "sha512.h"
-#include "../../endian/endian.h"
-#include "../../compiler/compiler.h"
+#include <ccan/crypto/sha512/sha512.h>
+#include <ccan/endian/endian.h>
+#include <ccan/compiler/compiler.h>
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
@@ -43,7 +43,7 @@ void sha512_update(struct sha512_ctx *ctx, const void *p, size_t size)
 	SHA512_Update(&ctx->c, p, size);
 }
 
-void sha512_done(struct sha512_ctx *ctx, struct sha512Wally *res)
+void sha512_done(struct sha512_ctx *ctx, struct sha512 *res)
 {
 	SHA512_Final(res->u.u8, &ctx->c);
 	invalidate_sha512(ctx);
@@ -186,7 +186,7 @@ static void Transform(uint64_t *s, const uint64_t *chunk)
 
 static void add(struct sha512_ctx *ctx, const void *p, size_t len)
 {
-	const unsigned char *data = (const unsigned char *)p;
+	const unsigned char *data = p;
 	size_t bufsize = ctx->bytes % 128;
 
 	if (bufsize + len >= 128) {
@@ -231,7 +231,7 @@ void sha512_update(struct sha512_ctx *ctx, const void *p, size_t size)
 	add(ctx, p, size);
 }
 
-void sha512_done(struct sha512_ctx *ctx, struct sha512Wally *res)
+void sha512_done(struct sha512_ctx *ctx, struct sha512 *res)
 {
 	static const unsigned char pad[128] = { 0x80 };
 	uint64_t sizedesc[2] = { 0, 0 };
@@ -249,7 +249,7 @@ void sha512_done(struct sha512_ctx *ctx, struct sha512Wally *res)
 }
 #endif /* CCAN_CRYPTO_SHA512_USE_OPENSSL */
 
-void sha512Wally(struct sha512Wally *sha, const void *p, size_t size)
+void sha512(struct sha512 *sha, const void *p, size_t size)
 {
 	struct sha512_ctx ctx;
 

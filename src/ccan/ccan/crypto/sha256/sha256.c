@@ -6,9 +6,9 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  */
-#include "sha256.h"
-#include "../../endian/endian.h"
-#include "../../compiler/compiler.h"
+#include <ccan/crypto/sha256/sha256.h>
+#include <ccan/endian/endian.h>
+#include <ccan/compiler/compiler.h>
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
@@ -35,7 +35,7 @@ void sha256_update(struct sha256_ctx *ctx, const void *p, size_t size)
 	SHA256_Update(&ctx->c, p, size);
 }
 
-void sha256_done(struct sha256_ctx *ctx, struct sha256Wally *res)
+void sha256_done(struct sha256_ctx *ctx, struct sha256 *res)
 {
 	SHA256_Final(res->u.u8, &ctx->c);
 	invalidate_sha256(ctx);
@@ -193,7 +193,7 @@ static inline void Transform(uint32_t *s, const uint32_t *chunk, size_t blocks)
 
 static void add(struct sha256_ctx *ctx, const void *p, size_t len)
 {
-	const unsigned char *data = (const unsigned char *)p;
+	const unsigned char *data = p;
 	size_t bufsize = ctx->bytes % 64;
 
 	if (bufsize + len >= 64) {
@@ -222,7 +222,7 @@ static void add(struct sha256_ctx *ctx, const void *p, size_t len)
 			len -= 64;
 		}
 	}
-
+	    
 	if (len) {
 		/* Fill the buffer with what remains. */
 		memcpy(ctx->buf.u8 + bufsize, data, len);
@@ -252,7 +252,7 @@ void sha256_update(struct sha256_ctx *ctx, const void *p, size_t size)
 	add(ctx, p, size);
 }
 
-void sha256_done(struct sha256_ctx *ctx, struct sha256Wally *res)
+void sha256_done(struct sha256_ctx *ctx, struct sha256 *res)
 {
 	static const unsigned char pad[64] = {0x80};
 	uint64_t sizedesc;
@@ -269,7 +269,7 @@ void sha256_done(struct sha256_ctx *ctx, struct sha256Wally *res)
 }
 #endif
 
-void sha256Wally(struct sha256Wally *sha, const void *p, size_t size)
+void sha256(struct sha256 *sha, const void *p, size_t size)
 {
 	struct sha256_ctx ctx;
 
@@ -278,7 +278,7 @@ void sha256Wally(struct sha256Wally *sha, const void *p, size_t size)
 	sha256_done(&ctx, sha);
 	CCAN_CLEAR_MEMORY(&ctx, sizeof(ctx));
 }
-
+	
 void sha256_u8(struct sha256_ctx *ctx, uint8_t v)
 {
 	sha256_update(ctx, &v, sizeof(v));
@@ -305,13 +305,13 @@ void sha256_le16(struct sha256_ctx *ctx, uint16_t v)
 	leint16_t lev = cpu_to_le16(v);
 	sha256_update(ctx, &lev, sizeof(lev));
 }
-
+	
 void sha256_le32(struct sha256_ctx *ctx, uint32_t v)
 {
 	leint32_t lev = cpu_to_le32(v);
 	sha256_update(ctx, &lev, sizeof(lev));
 }
-
+	
 void sha256_le64(struct sha256_ctx *ctx, uint64_t v)
 {
 	leint64_t lev = cpu_to_le64(v);
@@ -324,13 +324,13 @@ void sha256_be16(struct sha256_ctx *ctx, uint16_t v)
 	beint16_t bev = cpu_to_be16(v);
 	sha256_update(ctx, &bev, sizeof(bev));
 }
-
+	
 void sha256_be32(struct sha256_ctx *ctx, uint32_t v)
 {
 	beint32_t bev = cpu_to_be32(v);
 	sha256_update(ctx, &bev, sizeof(bev));
 }
-
+	
 void sha256_be64(struct sha256_ctx *ctx, uint64_t v)
 {
 	beint64_t bev = cpu_to_be64(v);

@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Derive a pseudorandom key from inputs using an expensive application
@@ -421,8 +421,8 @@ WALLY_CORE_API int wally_format_bitcoin_message(const unsigned char *bytes,
                                                 size_t len,
                                                 size_t *written);
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBWALLY_CORE_CRYPTO_H */

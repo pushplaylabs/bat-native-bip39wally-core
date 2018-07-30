@@ -1,5 +1,5 @@
 #include "internal.h"
-#include "wally_crypto.h"
+#include <include/wally_crypto.h>
 #include <stdbool.h>
 
 #include "ctaes/ctaes.h"

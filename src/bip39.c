@@ -4,8 +4,8 @@
 #include "hmac.h"
 #include "ccan/ccan/crypto/sha256/sha256.h"
 #include "ccan/ccan/crypto/sha512/sha512.h"
-#include "wally_bip39.h"
-#include "wally_crypto.h"
+#include <include/wally_bip39.h>
+#include <include/wally_crypto.h>
 
 #include "data/wordlists/chinese_simplified.c"
 #include "data/wordlists/chinese_traditional.c"
@@ -90,9 +90,9 @@ static size_t len_to_mask(size_t len)
 
 static size_t bip39_checksum(const unsigned char *bytes, size_t bytes_len, size_t mask)
 {
-    struct sha256Wally sha;
+    struct sha256 sha;
     size_t ret;
-    sha256Wally(&sha, bytes, bytes_len);
+    sha256(&sha, bytes, bytes_len);
     ret = sha.u.u8[0] | (sha.u.u8[1] << 8);
     wally_clear(&sha, sizeof(sha));
     return ret & mask;
@@ -217,7 +217,7 @@ int  bip39_mnemonic_to_seed(const char *mnemonic, const char *password,
     if (!mnemonic || !bytes_out || len != BIP39_SEED_LEN_512)
         return WALLY_EINVAL;
 
-    salt = (unsigned char*)wally_malloc(salt_len);
+    salt = wally_malloc(salt_len);
     if (!salt)
         return WALLY_ENOMEM;
 

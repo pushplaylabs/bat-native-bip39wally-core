@@ -4,8 +4,8 @@
 #include "ccan/ccan/crypto/sha512/sha512.h"
 #include "ccan/ccan/endian/endian.h"
 #include "ccan/ccan/build_assert/build_assert.h"
-#include "wally_bip32.h"
-#include "wally_crypto.h"
+#include <include/wally_bip32.h>
+#include <include/wally_crypto.h>
 #include "bip32_int.h"
 #include <stdbool.h>
 
@@ -17,24 +17,24 @@ static const unsigned char SEED[] = {
 
 /* LCOV_EXCL_START */
 /* Check assumptions we expect to hold true */
-//static void assert_bip32_assumptions(void)
-//{
+static void assert_bip32_assumptions(void)
+{
 #define key_off(member) offsetof(struct ext_key,  member)
 #define key_size(member) sizeof(((struct ext_key *)0)->member)
 
     /* Our ripend buffers must be uint32_t aligned and the correct size */
-//    BUILD_ASSERT(key_off(parent160) % sizeof(uint32_t) == 0);
-//    BUILD_ASSERT(key_off(hash160) % sizeof(uint32_t) == 0);
-//    BUILD_ASSERT(key_size(parent160) == sizeof(struct ripemd160));
-//    BUILD_ASSERT(key_size(hash160) == sizeof(struct ripemd160));
-//    BUILD_ASSERT(key_size(priv_key) == EC_PRIVATE_KEY_LEN + 1);
+    BUILD_ASSERT(key_off(parent160) % sizeof(uint32_t) == 0);
+    BUILD_ASSERT(key_off(hash160) % sizeof(uint32_t) == 0);
+    BUILD_ASSERT(key_size(parent160) == sizeof(struct ripemd160));
+    BUILD_ASSERT(key_size(hash160) == sizeof(struct ripemd160));
+    BUILD_ASSERT(key_size(priv_key) == EC_PRIVATE_KEY_LEN + 1);
 
     /* Our keys following the parity byte must be uint64_t aligned */
-//    BUILD_ASSERT((key_off(priv_key) + 1) % sizeof(uint64_t) == 0);
-//    BUILD_ASSERT((key_off(pub_key) + 1) % sizeof(uint64_t) == 0);
+    BUILD_ASSERT((key_off(priv_key) + 1) % sizeof(uint64_t) == 0);
+    BUILD_ASSERT((key_off(pub_key) + 1) % sizeof(uint64_t) == 0);
 
     /* child_num must be contigous after priv_key */
-//    BUILD_ASSERT((key_off(priv_key) + key_size(priv_key)) == key_off(child_num));
+    BUILD_ASSERT((key_off(priv_key) + key_size(priv_key)) == key_off(child_num));
 
     /* We use priv_key[0] to determine if this extended key is public or
      * private, If priv_key[0] is BIP32_FLAG_KEY_PRIVATE then this key is private
@@ -45,11 +45,11 @@ static const unsigned char SEED[] = {
      * private key is valid when serialized, and BIP32_FLAG_KEY_PUBLIC cannot be
      * 2 or 3 as they are valid parity bytes for public keys.
      */
-//    BUILD_ASSERT(BIP32_FLAG_KEY_PRIVATE == 0);
-//    BUILD_ASSERT(BIP32_FLAG_KEY_PUBLIC != BIP32_FLAG_KEY_PRIVATE &&
-//                 BIP32_FLAG_KEY_PUBLIC != 2u &&
-//                 BIP32_FLAG_KEY_PUBLIC != 3u);
-//}
+    BUILD_ASSERT(BIP32_FLAG_KEY_PRIVATE == 0);
+    BUILD_ASSERT(BIP32_FLAG_KEY_PUBLIC != BIP32_FLAG_KEY_PRIVATE &&
+                 BIP32_FLAG_KEY_PUBLIC != 2u &&
+                 BIP32_FLAG_KEY_PUBLIC != 3u);
+}
 /* LCOV_EXCL_STOP */
 
 static bool mem_is_zero(const void *mem, size_t len)
@@ -124,7 +124,7 @@ int bip32_key_from_seed(const unsigned char *bytes, size_t bytes_len,
                         struct ext_key *key_out)
 {
     const secp256k1_context *ctx;
-    struct sha512Wally sha;
+    struct sha512 sha;
 
     if (!bytes || !is_valid_seed_len(bytes_len) ||
         !version_is_valid(version, BIP32_FLAG_KEY_PRIVATE) ||
@@ -168,7 +168,7 @@ int bip32_key_from_seed(const unsigned char *bytes, size_t bytes_len,
 #define ALLOC_KEY() \
     if (!output) \
         return WALLY_EINVAL; \
-    *output = (struct ext_key*)wally_malloc(sizeof(struct ext_key)); \
+    *output = wally_malloc(sizeof(struct ext_key)); \
     if (!*output) \
         return WALLY_ENOMEM; \
     wally_clear((void *)*output, sizeof(struct ext_key))
@@ -370,7 +370,7 @@ int bip32_key_unserialize_alloc(const unsigned char *bytes, size_t bytes_len,
 int bip32_key_from_parent(const struct ext_key *hdkey, uint32_t child_num,
                           uint32_t flags, struct ext_key *key_out)
 {
-    struct sha512Wally sha;
+    struct sha512 sha;
     const secp256k1_context *ctx;
     const bool we_are_private = hdkey && key_is_private(hdkey);
     const bool derive_private = !(flags & BIP32_FLAG_KEY_PUBLIC);
@@ -577,23 +577,23 @@ int bip32_key_init_alloc(uint32_t version, uint32_t depth, uint32_t child_num,
     switch (version) {
     case BIP32_VER_MAIN_PRIVATE:
     case BIP32_VER_TEST_PRIVATE:
-        if (!priv_key || priv_key_len != (size_t)key_size(priv_key) - 1)
+        if (!priv_key || priv_key_len != key_size(priv_key) - 1)
             return WALLY_EINVAL;
         break;
     case BIP32_VER_MAIN_PUBLIC:
     case BIP32_VER_TEST_PUBLIC:
-        if (!pub_key || pub_key_len != (size_t)key_size(pub_key))
+        if (!pub_key || pub_key_len != key_size(pub_key))
             return WALLY_EINVAL;
         break;
     }
 
-    if (!chain_code || chain_code_len != (size_t)key_size(chain_code))
+    if (!chain_code || chain_code_len != key_size(chain_code))
         return WALLY_EINVAL;
 
-    if ((priv_key && priv_key_len != (size_t)key_size(priv_key) - 1) || (!priv_key && priv_key_len) ||
-        (pub_key && pub_key_len != (size_t)key_size(pub_key)) || (!pub_key && pub_key_len) ||
-        (hash160 && hash160_len != (size_t)key_size(hash160)) || (!hash160 && hash160_len) ||
-        (parent160 && parent160_len != (size_t)key_size(parent160)))
+    if ((priv_key && priv_key_len != key_size(priv_key) - 1) || (!priv_key && priv_key_len) ||
+        (pub_key && pub_key_len != key_size(pub_key)) || (!pub_key && pub_key_len) ||
+        (hash160 && hash160_len != key_size(hash160)) || (!hash160 && hash160_len) ||
+        (parent160 && parent160_len != key_size(parent160)))
         return WALLY_EINVAL;
 
     ALLOC_KEY();

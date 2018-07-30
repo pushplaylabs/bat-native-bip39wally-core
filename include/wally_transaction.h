@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define WALLY_TX_SEQUENCE_FINAL 0xffffffff
 #define WALLY_TX_VERSION_1 1
@@ -515,8 +515,8 @@ WALLY_CORE_API int wally_tx_get_signature_hash(
     unsigned char *bytes_out,
     size_t len);
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBWALLY_CORE_TRANSACTION_H */

@@ -49,8 +49,8 @@ static uint64_t integerify(const void *, size_t);
 static void
 sse2_blkcpy(void * dest, const void * src, size_t len)
 {
-	__m128i * D = (__m128i *)dest;
-	const __m128i * S = (const __m128i *)src;
+	__m128i * D = dest;
+	const __m128i * S = src;
 	size_t L = len / 16;
 	size_t i;
 
@@ -61,8 +61,8 @@ sse2_blkcpy(void * dest, const void * src, size_t len)
 static void
 sse2_blkxor(void * dest, const void * src, size_t len)
 {
-	__m128i * D = (__m128i *)dest;
-	const __m128i * S = (const __m128i *)src;
+	__m128i * D = dest;
+	const __m128i * S = src;
 	size_t L = len / 16;
 	size_t i;
 
@@ -174,7 +174,7 @@ sse2_blockmix_salsa8(const __m128i * Bin, __m128i * Bout, __m128i * X, size_t r)
 static uint64_t
 sse2_integerify(const void * B, size_t r)
 {
-	const uint32_t * X = (const uint32_t *)((uintptr_t)(B) + (2 * r - 1) * 64);
+	const uint32_t * X = (const void *)((uintptr_t)(B) + (2 * r - 1) * 64);
 
 	return X[0];
 }
@@ -192,10 +192,10 @@ sse2_integerify(const void * B, size_t r)
 void
 crypto_scrypt_smix_sse2(uint8_t * B, size_t r, uint64_t N, void * V, void * XY)
 {
-	__m128i * X = (__m128i *)XY;
-	__m128i * Y = (__m128i *)((uintptr_t)(XY) + 128 * r);
-	__m128i * Z = (__m128i *)((uintptr_t)(XY) + 256 * r);
-	uint32_t * X32 = (uint32_t *)X;
+	__m128i * X = XY;
+	__m128i * Y = (void *)((uintptr_t)(XY) + 128 * r);
+	__m128i * Z = (void *)((uintptr_t)(XY) + 256 * r);
+	uint32_t * X32 = (void *)X;
 	uint64_t i, j;
 	size_t k;
 

@@ -3,9 +3,9 @@
 
 #include "wally_core.h"
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct words;
 
@@ -117,8 +117,8 @@ WALLY_CORE_API int bip39_mnemonic_to_seed(
     size_t len,
     size_t *written);
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBWALLY_CORE_BIP39_H */

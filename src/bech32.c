@@ -21,9 +21,9 @@
 #include "internal.h"
 #include <stdlib.h>
 #include <stdint.h>
-#include "wally_address.h"
-#include "wally_script.h"
-#include "wally_crypto.h"
+#include <include/wally_address.h>
+#include <include/wally_script.h>
+#include <include/wally_crypto.h>
 #include "script.h"
 
 

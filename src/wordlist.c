@@ -3,7 +3,7 @@
 
 static int bstrcmp(const void *l, const void *r)
 {
-    return strcmp((const char*)l, (*(const char **)r));
+    return strcmp(l, (*(const char **)r));
 }
 
 /* https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious */
@@ -18,14 +18,14 @@ static int get_bits(size_t n)
 /* Allocate a new words structure */
 static struct words *wordlist_alloc(const char *words, size_t len)
 {
-    struct words *w = (struct words *)wally_malloc(sizeof(struct words));
+    struct words *w = wally_malloc(sizeof(struct words));
     if (w) {
         w->str = wally_strdup(words);
         if (w->str) {
             w->str_len = strlen(w->str);
             w->len = len;
             w->bits = get_bits(len);
-            w->indices = (const char**)wally_malloc(len * sizeof(const char *));
+            w->indices = wally_malloc(len * sizeof(const char *));
             if (w->indices)
                 return w;
         }

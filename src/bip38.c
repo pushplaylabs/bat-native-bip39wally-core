@@ -4,8 +4,8 @@
 #include "ccan/ccan/crypto/ripemd160/ripemd160.h"
 #include "ccan/ccan/endian/endian.h"
 #include "ccan/ccan/build_assert/build_assert.h"
-#include "wally_bip38.h"
-#include "wally_crypto.h"
+#include <include/wally_bip38.h>
+#include <include/wally_crypto.h>
 #include <stdbool.h>
 
 #define BIP38_FLAG_DEFAULT   (0x40 | 0x80)
@@ -54,15 +54,15 @@ struct bip38_layout_t {
 
 /* LCOV_EXCL_START */
 /* Check assumptions we expect to hold true */
-//static void assert_bip38_assumptions(void)
-//{
+static void assert_bip38_assumptions(void)
+{
     /* derived_t/bip38_layout_t must be contiguous */
-    //BUILD_ASSERT(sizeof(struct derived_t) == BIP38_DERIVED_KEY_LEN);
+    BUILD_ASSERT(sizeof(struct derived_t) == BIP38_DERIVED_KEY_LEN);
     /* 44 -> pad1 + 39 + BASE58_CHECKSUM_LEN */
-    //BUILD_ASSERT(sizeof(struct bip38_layout_t) == 44u);
-    //BUILD_ASSERT((sizeof(struct bip38_layout_t) - BASE58_CHECKSUM_LEN - 1) ==
-//                 BIP38_SERIALIZED_LEN);
-//}
+    BUILD_ASSERT(sizeof(struct bip38_layout_t) == 44u);
+    BUILD_ASSERT((sizeof(struct bip38_layout_t) - BASE58_CHECKSUM_LEN - 1) ==
+                 BIP38_SERIALIZED_LEN);
+}
 /* LCOV_EXCL_STOP */
 
 /* FIXME: Export this with other address functions */
@@ -72,7 +72,7 @@ static int address_from_private_key(const unsigned char *bytes,
                                     bool compressed,
                                     char **output)
 {
-    struct sha256Wally sha;
+    struct sha256 sha;
     unsigned char pub_key_short[EC_PUBLIC_KEY_LEN];
     unsigned char pub_key_long[EC_PUBLIC_KEY_UNCOMPRESSED_LEN];
     unsigned char *pub_key = pub_key_short;
@@ -97,7 +97,7 @@ static int address_from_private_key(const unsigned char *bytes,
         pub_key = pub_key_long;
     }
     if (ret == WALLY_OK) {
-        sha256Wally(&sha, pub_key, pub_key_len);
+        sha256(&sha, pub_key, pub_key_len);
         ripemd160(&buf.hash160, &sha, sizeof(sha));
         buf.network_bytes.bytes[3] = network;
         ret = wally_base58_from_bytes(&buf.network_bytes.bytes[3],
@@ -109,14 +109,14 @@ static int address_from_private_key(const unsigned char *bytes,
     return ret;
 }
 
-static void aes_enc_impl(const unsigned char *src, const unsigned char *xor1,
+static void aes_enc_impl(const unsigned char *src, const unsigned char *xor,
                          const unsigned char *key, unsigned char *bytes_out)
 {
     unsigned char plaintext[AES_BLOCK_LEN];
     size_t i;
 
     for (i = 0; i < sizeof(plaintext); ++i)
-        plaintext[i] = src[i] ^ xor1[i];
+        plaintext[i] = src[i] ^ xor[i];
 
     wally_aes(key, AES_KEY_LEN_256, plaintext, AES_BLOCK_LEN,
               AES_FLAG_ENCRYPT, bytes_out, AES_BLOCK_LEN);
@@ -201,7 +201,7 @@ int bip38_from_private_key(const unsigned char *bytes, size_t bytes_len,
 }
 
 
-static void aes_dec_impl(const unsigned char *cyphertext, const unsigned char *xor1,
+static void aes_dec_impl(const unsigned char *cyphertext, const unsigned char *xor,
                          const unsigned char *key, unsigned char *bytes_out)
 {
     size_t i;
@@ -212,7 +212,7 @@ static void aes_dec_impl(const unsigned char *cyphertext, const unsigned char *x
               bytes_out, AES_BLOCK_LEN);
 
     for (i = 0; i < AES_BLOCK_LEN; ++i)
-        bytes_out[i] ^= xor1[i];
+        bytes_out[i] ^= xor[i];
 }
 
 static int to_private_key(const char *bip38,

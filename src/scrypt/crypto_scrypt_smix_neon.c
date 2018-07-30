@@ -53,8 +53,8 @@ static void smix(uint8_t *, size_t, uint64_t, void *, void *);
 static void
 neon_blkcpy(void * dest, void * src, size_t len)
 {
-    uint8x16_t * D = (uint8x16_t *)dest;
-    uint8x16_t * S = (uint8x16_t *)src;
+    uint8x16_t * D = dest;
+    uint8x16_t * S = src;
     size_t L = len / 16;
     size_t i;
     for (i = 0; i < L; i++)
@@ -63,8 +63,8 @@ neon_blkcpy(void * dest, void * src, size_t len)
 static void
 neon_blkxor(void * dest, void * src, size_t len)
 {
-    uint8x16_t * D = (uint8x16_t *)dest;
-    uint8x16_t * S = (uint8x16_t *)src;
+    uint8x16_t * D = dest;
+    uint8x16_t * S = src;
     size_t L = len / 16;
     size_t i;
     for (i = 0; i < L; i++)
@@ -218,7 +218,7 @@ neon_le64dec(const void *pp)
 static uint64_t
 neon_integerify(void * B, size_t r)
 {
-    uint8_t * X = (uint8_t *)((uintptr_t)(B) + (2 * r - 1) * 64);
+    uint8_t * X = (void*)((uintptr_t)(B) + (2 * r - 1) * 64);
     return (neon_le64dec(X));
 }
 /**
@@ -230,9 +230,9 @@ neon_integerify(void * B, size_t r)
 static void
 crypto_scrypt_smix_neon(uint8_t * B, size_t r, uint64_t N, void * V, void * XY)
 {
-    uint8x16_t * X = (uint8x16_t *)XY;
-    uint8x16_t * Y = (uint8x16_t *)((uintptr_t)(XY) + 128 * r);
-    uint8x16_t * Z = (uint8x16_t *)((uintptr_t)(XY) + 256 * r);
+    uint8x16_t * X = XY;
+    uint8x16_t * Y = (void *)((uintptr_t)(XY) + 128 * r);
+    uint8x16_t * Z = (void *)((uintptr_t)(XY) + 256 * r);
     uint64_t i, j;
 
     /* 1: X <-- B */
