@@ -1,5 +1,7 @@
 # libwally-core
 
+Original version of the library for bat-native-ledger was pulled from that commit https://github.com/ElementsProject/libwally-core/commit/cd5b8c404352759d603208e08c59003aaeb9a6fa
+
 Wally is a cross-platform, cross-language collection of useful primitives
 for cryptocurrency wallets.
 
