@@ -15,8 +15,17 @@ config("external_config") {
   ]
 }
 
+config("internal_config") {
+  cflags = [
+    # static uint32_t le32dec(const void *p)
+    # static void le32enc(void *p, uint32_t value)
+    "-Wno-unused-function",
+  ]
+}
+
 source_set("bip39wally-core") {
   public_configs = [ ":external_config" ]
+  configs += [ ":internal_config" ]
   sources = [
     "src/aes.cc",
     "src/base58.cc",
@@ -40,11 +49,5 @@ source_set("bip39wally-core") {
     "src/ccan/ccan/crypto/sha512/sha512.cc",
     "src/ccan/ccan/str/hex/hex.cc",
     "src/secp256k1/src/secp256k1.cc"
-  ]
-
-  cflags = [
-    # static uint32_t le32dec(const void *p)
-    # static void le32enc(void *p, uint32_t value)
-    "-Wno-unused-function",
   ]
 }
