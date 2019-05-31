@@ -42,9 +42,9 @@ source_set("bip39wally-core") {
     "src/secp256k1/src/secp256k1.cc"
   ]
 
-  #if (current_cpu == "x86") {
-  #  sources += [ "relic/src/arch/relic_arch_x86.c" ]
-  #} else {
-  #  sources += [ "relic/src/arch/relic_arch_arm.c" ]
-  #}
+  cflags = [
+    # static uint32_t le32dec(const void *p)
+    # static void le32enc(void *p, uint32_t value)
+    "-Wno-unused-function",
+  ]
 }
