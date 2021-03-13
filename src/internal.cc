@@ -1,49 +1,12 @@
 #include "internal.h"
 #include "wally_crypto.h"
 #include "ccan/ccan/build_assert/build_assert.h"
-#include "ccan/ccan/crypto/ripemd160/ripemd160.h"
 #include "ccan/ccan/crypto/sha256/sha256.h"
 #include "ccan/ccan/crypto/sha512/sha512.h"
 #include <stdbool.h>
 
 #undef malloc
 #undef free
-
-/* Caller is responsible for thread safety */
-static secp256k1_context *global_ctx = NULL;
-
-const secp256k1_context *secp_ctx(void)
-{
-    const uint32_t flags = SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_SIGN;
-
-    if (!global_ctx)
-        global_ctx = secp256k1_context_create(flags);
-
-    return global_ctx;
-}
-
-#ifndef SWIG
-struct secp256k1_context_struct *wally_get_secp_context(void)
-{
-    return (struct secp256k1_context_struct *)secp_ctx();
-}
-#endif
-
-int wally_secp_randomize(const unsigned char *bytes, size_t bytes_len)
-{
-    secp256k1_context *ctx;
-
-    if (!bytes || bytes_len != WALLY_SECP_RANDOMISE_LEN)
-        return WALLY_EINVAL;
-
-    if (!(ctx = (secp256k1_context *)secp_ctx()))
-        return WALLY_ENOMEM;
-
-    if (!secp256k1_context_randomize(ctx, bytes))
-        return WALLY_ERROR;
-
-    return WALLY_OK;
-}
 
 int wally_free_string(char *str)
 {
@@ -115,28 +78,6 @@ int wally_sha512(const unsigned char *bytes, size_t bytes_len,
     return WALLY_OK;
 }
 
-int wally_hash160(const unsigned char *bytes, size_t bytes_len,
-                  unsigned char *bytes_out, size_t len)
-{
-    struct sha256Wally sha;
-    struct ripemd160 ripemd;
-    bool aligned = alignment_ok(bytes_out, sizeof(ripemd.u.u32));
-
-    if (!bytes || !bytes_out || len != HASH160_LEN)
-        return WALLY_EINVAL;
-
-    BUILD_ASSERT(sizeof(ripemd) == HASH160_LEN);
-
-    sha256Wally(&sha, bytes, bytes_len);
-    ripemd160(aligned ? (struct ripemd160 *)bytes_out : &ripemd, &sha, sizeof(sha));
-    if (!aligned) {
-        memcpy(bytes_out, &ripemd, sizeof(ripemd));
-        wally_clear(&ripemd, sizeof(ripemd));
-    }
-    wally_clear(&sha, sizeof(sha));
-    return WALLY_OK;
-}
-
 static void wally_internal_bzero(void *dest, size_t len)
 {
 #ifdef HAVE_MEMSET_S
@@ -163,18 +104,10 @@ static void wally_internal_free(void *ptr)
         free(ptr);
 }
 
-static int wally_internal_ec_nonce_fn(unsigned char *nonce32,
-                                      const unsigned char *msg32, const unsigned char *key32,
-                                      const unsigned char *algo16, void *data, unsigned int attempt)
-{
-    return secp256k1_nonce_function_default(nonce32, msg32, key32, algo16, data, attempt);
-}
-
 static struct wally_operations _ops = {
     wally_internal_malloc,
     wally_internal_free,
-    wally_internal_bzero,
-    wally_internal_ec_nonce_fn
+    wally_internal_bzero
 };
 
 void *wally_malloc(size_t size)
@@ -286,11 +219,6 @@ int wally_cleanup(uint32_t flags)
 {
     if (flags)
         return WALLY_EINVAL;
-    if (global_ctx) {
-#undef secp256k1_context_destroy
-        secp256k1_context_destroy(global_ctx);
-        global_ctx = NULL;
-    }
     return WALLY_OK;
 }
 
