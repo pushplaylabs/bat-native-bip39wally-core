@@ -58,6 +58,19 @@ WALLY_CORE_API int bip39_get_word(
     size_t index,
     char **output);
 
+// @sidekick
+/**
+ * Wrapper for wordlist_lookup_word().
+ *
+ * :param w: Word list to use. Pass NULL to use the default English list.
+ * :param word: word to search.
+ *
+ * Returns 0 if not found, idx + 1 otherwise.
+ */
+WALLY_CORE_API int bip39_get_word_index(const struct words* w,
+                                        const char* word);
+// /@sidekick
+
 /**
  * Generate a mnemonic sentence from the entropy in ``bytes``.
  *
